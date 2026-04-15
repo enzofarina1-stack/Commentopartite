@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperFanta TV — Telecronaca Live</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto+Condensed:wght@300;400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --panel: #12121a;
+  --border: #1e1e2e;
+  --red: #e62222;
+  --gold: #f0c040;
+  --green: #22c55e;
+  --blue: #3b82f6;
+  --white: #f0f0f0;
+  --grey: #888;
+  --dim: #555;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Roboto', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== CHANNEL HEADER ===== */
+.channel-bar {
+  background: var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 18px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+.channel-logo {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.channel-logo span { color: var(--gold); }
+
+.live-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.live-dot::before {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: white;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* ===== TICKER ===== */
+.ticker {
+  background: #111;
+  border-bottom: 2px solid var(--red);
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 5px 0;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 13px;
+  color: var(--gold);
+}
+.ticker-content { display: inline-block; animation: scroll 50s linear infinite; }
+@keyframes scroll { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
+
+/* ===== LAYOUT ===== */
+.main {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 0;
+  height: calc(100vh - 62px);
+}
+
+@media (max-width: 768px) {
+  .main { grid-template-columns: 1fr; height: auto; }
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  padding: 14px 16px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--grey);
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+}
+
+.match-btn {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  text-align: left;
+  color: var(--white);
+}
+
+.match-btn:hover { background: rgba(255,255,255,0.04); }
+.match-btn.active { background: rgba(230,34,34,0.12); border-left: 3px solid var(--red); }
+
+.match-btn-competition {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.match-btn-teams {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.match-btn-score {
+  font-family: 'Oswald', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--red);
+  margin: 4px 0;
+}
+
+.match-btn-pts {
+  font-size: 11px;
+  color: var(--grey);
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+.match-btn-badge {
+  position: absolute;
+  top: 14px; right: 14px;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 1px;
+}
+.badge-epic { background: var(--gold); color: #000; }
+.badge-coppa { background: #7c3aed; color: white; }
+
+/* ===== TV SCREEN ===== */
+.tv-area {
+  display: flex;
+  flex-direction: column;
+  background: #0d0d14;
+  overflow: hidden;
+}
+
+/* Score overlay top */
+.score-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  background: rgba(0,0,0,0.8);
+  border-bottom: 1px solid var(--border);
+  gap: 20px;
+  min-height: 70px;
+}
+
+.so-team {
+  flex: 1;
+  font-family: 'Oswald', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.so-team.right { justify-content: flex-end; text-align: right; }
+
+.so-logo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.so-score-box {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.so-score {
+  font-family: 'Oswald', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.so-pts {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 11px;
+  color: var(--grey);
+  margin-top: 2px;
+}
+
+.so-competition {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* Commentary area */
+.commentary-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100vh - 220px);
+}
+
+/* Individual event */
+.event {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  padding: 10px 12px;
+  border-radius: 4px;
+}
+
+.event.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.event.gol { background: rgba(34,197,94,0.08); border-left: 3px solid var(--green); }
+.event.malus { background: rgba(230,34,34,0.08); border-left: 3px solid var(--red); }
+.event.super { background: rgba(240,192,64,0.1); border-left: 3px solid var(--gold); }
+.event.info { border-left: 3px solid var(--border); }
+.event.intro { background: rgba(59,130,246,0.06); border-left: 3px solid var(--blue); }
+.event.finale { background: rgba(240,192,64,0.12); border-left: 3px solid var(--gold); }
+
+.event-time {
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--grey);
+  min-width: 36px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+.event-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.event-body {}
+
+.event-player {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--white);
+}
+
+.event-fv {
+  display: inline-block;
+  background: var(--green);
+  color: #000;
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.event-fv.bad { background: var(--red); color: white; }
+.event-fv.super-score { background: var(--gold); color: #000; font-size: 14px; }
+
+.event-text {
+  font-size: 13px;
+  color: #bbb;
+  margin-top: 3px;
+  line-height: 1.5;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* GOAL FLASH */
+.goal-flash {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(34,197,94,0.15);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 100;
+  transition: opacity 0.1s;
+}
+.goal-flash.flash { opacity: 1; }
+
+/* SUPER FLASH */
+.super-flash {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(240,192,64,0.2);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 100;
+  transition: opacity 0.1s;
+}
+.super-flash.flash { opacity: 1; }
+
+/* BIG MOMENT */
+.big-moment {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%) scale(0);
+  z-index: 200;
+  text-align: center;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.big-moment.show { transform: translate(-50%,-50%) scale(1); }
+
+.bm-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 80px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gold);
+  text-shadow: 0 0 40px rgba(240,192,64,0.8), 0 4px 0 #000;
+  letter-spacing: -2px;
+}
+
+.bm-sub {
+  font-family: 'Oswald', sans-serif;
+  font-size: 24px;
+  color: white;
+  text-shadow: 0 2px 0 #000;
+  margin-top: 4px;
+}
+
+/* START SCREEN */
+.start-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 40px;
+  text-align: center;
+}
+
+.start-logo {
+  font-family: 'Oswald', sans-serif;
+  font-size: 16px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.start-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(24px, 5vw, 48px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: white;
+}
+
+.start-desc {
+  font-size: 15px;
+  color: var(--grey);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.start-arrow {
+  font-size: 40px;
+  animation: bounce 1.5s infinite;
+}
+
+@keyframes bounce { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-10px)} }
+
+/* Control bar */
+.ctrl-bar {
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-play {
+  background: var(--red);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  padding: 9px 20px;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.1s;
+  text-transform: uppercase;
+}
+
+.btn-play:hover { background: #c01010; }
+.btn-play:active { transform: scale(0.97); }
+.btn-play:disabled { background: var(--dim); cursor: not-allowed; }
+
+.btn-skip {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--grey);
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 9px 16px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-skip:hover { border-color: var(--grey); color: var(--white); }
+
+.ctrl-status {
+  flex: 1;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 13px;
+  color: var(--grey);
+}
+
+/* MOTM */
+.motm-card {
+  background: linear-gradient(135deg, rgba(240,192,64,0.15), rgba(240,192,64,0.05));
+  border: 1px solid rgba(240,192,64,0.3);
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+  margin: 8px 0;
+}
+
+.motm-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.motm-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+}
+
+.motm-fv {
+  font-family: 'Oswald', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.motm-comment {
+  font-size: 13px;
+  color: #bbb;
+  font-style: italic;
+  margin-top: 6px;
+}
+
+/* Final scoreboard */
+.final-card {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: center;
+  text-align: center;
+  margin: 8px 0;
+}
+
+.final-team-name { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; }
+.final-pts { font-size: 12px; color: var(--grey); margin-top: 2px; font-family:'Roboto Condensed'; }
+.final-score { font-family: 'Oswald', sans-serif; font-size: 36px; font-weight: 700; color: white; }
+</style>
+</head>
+<body>
+
+<!-- FLASH OVERLAYS -->
+<div class="goal-flash" id="goalFlash"></div>
+<div class="super-flash" id="superFlash"></div>
+<div class="big-moment" id="bigMoment">
+  <div class="bm-label" id="bmLabel">GOL!</div>
+  <div class="bm-sub" id="bmSub"></div>
+</div>
+
+<!-- CHANNEL BAR -->
+<div class="channel-bar">
+  <div class="channel-logo">SUPER<span>FANTA</span>TV</div>
+  <div>📅 STAGIONE 2025/26</div>
+  <div class="live-dot">IN DIRETTA</div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <span class="ticker-content">
+    🔴 BREAKING: Malen 17.5 fantavoto — il miglior score della giornata! &nbsp;•&nbsp;
+    💥 Dumfries 14 trascina S.C. Municipio alla manita! &nbsp;•&nbsp;
+    ⚡ Thuram 13.5 demolisce McTan &nbsp;•&nbsp;
+    💀 Maignan 3 — Sommer 2: portieri in crisi nel Baddie e Foggia &nbsp;•&nbsp;
+    😱 FUTBIN solo 57 punti: peggior score della giornata &nbsp;•&nbsp;
+    🏆 COPPA MELONI: Barriera avanza! Jet2 vola in semifinale! &nbsp;•&nbsp;
+    📺 SUPERFANTA TV — Tutti i match, tutti i momenti &nbsp;•&nbsp;
+  </span>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">📺 Seleziona Partita</div>
+
+    <button class="match-btn" onclick="selectMatch(0)">
+      <div class="match-btn-competition">⚽ Campionato 29ª Giornata</div>
+      <div class="match-btn-teams">S.C. Municipio<br>vs RealDobaglio</div>
+      <div class="match-btn-score">5–2</div>
+      <div class="match-btn-pts">82.00 — 71.50 pt</div>
+      <span class="match-btn-badge badge-epic">⚡ EPIC</span>
+    </button>
+
+    <button class="match-btn" onclick="selectMatch(1)">
+      <div class="match-btn-competition">⚽ Campionato 29ª Giornata</div>
+      <div class="match-btn-teams">Barriera Beinasco FC<br>vs Baddie Team</div>
+      <div class="match-btn-score">5–0</div>
+      <div class="match-btn-pts">83.00 — 65.00 pt</div>
+      <span class="match-btn-badge badge-epic">🚀 MALEN</span>
+    </button>
+
+    <button class="match-btn" onclick="selectMatch(2)">
+      <div class="match-btn-competition">⚽ Campionato 29ª Giornata</div>
+      <div class="match-btn-teams">Monviso Pinerolo FC<br>vs McTan</div>
+      <div class="match-btn-score">5–1</div>
+      <div class="match-btn-pts">83.00 — 67.00 pt</div>
+      <span class="match-btn-badge badge-epic">🏔️ THURAM</span>
+    </button>
+
+    <button class="match-btn" onclick="selectMatch(3)">
+      <div class="match-btn-competition">⚽ Campionato 29ª Giornata</div>
+      <div class="match-btn-teams">Jet2Holidays<br>vs La Ciurma Illegale</div>
+      <div class="match-btn-score">2–0</div>
+      <div class="match-btn-pts">73.50 — 64.50 pt</div>
+    </button>
+
+    <button class="match-btn" onclick="selectMatch(4)">
+      <div class="match-btn-competition">⚽ Campionato 29ª Giornata</div>
+      <div class="match-btn-teams">FUTBIN<br>vs Foggia Calcio</div>
+      <div class="match-btn-score">0–1</div>
+      <div class="match-btn-pts">57.00 — 67.50 pt</div>
+      <span class="match-btn-badge badge-epic" style="background:#555">💀 FLOP</span>
+    </button>
+
+    <button class="match-btn" onclick="selectMatch(5)">
+      <div class="match-btn-competition" style="color:#a78bfa">🏆 Coppa Meloni — Semifin. Andata</div>
+      <div class="match-btn-teams">Barriera Beinasco FC<br>vs Foggia Calcio</div>
+      <div class="match-btn-score">5–1</div>
+      <div class="match-btn-pts">83.00 — 67.50 pt</div>
+      <span class="match-btn-badge badge-coppa">COPPA</span>
+    </button>
+
+    <button class="match-btn" onclick="selectMatch(6)">
+      <div class="match-btn-competition" style="color:#a78bfa">🏆 Coppa Meloni — Semifin. Andata</div>
+      <div class="match-btn-teams">Baddie Team<br>vs Jet2Holidays</div>
+      <div class="match-btn-score">0–2</div>
+      <div class="match-btn-pts">65.00 — 73.50 pt</div>
+      <span class="match-btn-badge badge-coppa">COPPA</span>
+    </button>
+  </div>
+
+  <!-- TV AREA -->
+  <div class="tv-area">
+
+    <!-- SCORE OVERLAY -->
+    <div class="score-overlay" id="scoreOverlay">
+      <div class="so-team" id="soHomeTeam">
+        <img class="so-logo" id="soHomeLogo" src="" onerror="this.style.display='none'">
+        <span id="soHomeName">—</span>
+      </div>
+      <div class="so-score-box">
+        <div class="so-score" id="soScore">—</div>
+        <div class="so-competition" id="soComp"></div>
+        <div class="so-pts" id="soPts">—</div>
+      </div>
+      <div class="so-team right" id="soAwayTeam">
+        <span id="soAwayName">—</span>
+        <img class="so-logo" id="soAwayLogo" src="" onerror="this.style.display='none'">
+      </div>
+    </div>
+
+    <!-- COMMENTARY -->
+    <div class="commentary-area" id="commentaryArea">
+      <div class="start-screen" id="startScreen">
+        <div class="start-logo">SuperFanta TV</div>
+        <div class="start-title">Telecronaca<br>Interattiva</div>
+        <div class="start-desc">Seleziona una partita dalla lista a sinistra e rivivila minuto per minuto con i fantavoti reali!</div>
+        <div class="start-arrow">👈</div>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="ctrl-bar">
+      <button class="btn-play" id="btnPlay" onclick="playMatch()" disabled>▶ INIZIA</button>
+      <button class="btn-skip" id="btnSkip" onclick="skipAll()" style="display:none">⏭ Salta tutto</button>
+      <div class="ctrl-status" id="ctrlStatus">← Seleziona una partita</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const CDN = 'https://d2lhpso9w1g8dk.cloudfront.net/web/risorse/squadra_2025/';
+
+const LOGOS = {
+  'S.C. Municipio': '9094051_01362249.png',
+  'RealDobaglio': '17114915_0584854.png',
+  'Barriera Beinasco FC': '9094079_01030061.png',
+  'Baddie Team': '9097265_0676916.png',
+  'Monviso Pinerolo FC': '9097046_07931002.png',
+  'McTan': '11258200_06870458.png',
+  'Jet2Holidays': '9394629_06164705.png',
+  'La Ciurma Illegale': '9091832_04316517.png',
+  'FUTBIN': '9081522_0527629.png',
+  'Foggia Calcio': null,
+};
+
+// event types: intro, info, gol, malus, super, finale
+const MATCHES = [
+
+  // 0 — S.C. Municipio 5-2 RealDobaglio
+  {
+    home: 'S.C. Municipio', away: 'RealDobaglio',
+    score: '5–2', homePts: '82.00', awayPts: '71.50',
+    competition: '⚽ Campionato 29ª',
+    motm: { player: 'Dumfries', team: 'S.C. Municipio', fv: 14, comment: '"Il terzino olandese fa 14 fantavoto. Mister Il Vicesindaco ha trovato oro."' },
+    events: [
+      { time: '🎙️', type: 'intro', icon: '📡', player: 'Studio', text: 'Buonasera e benvenuti su SuperFanta TV! Si gioca S.C. Municipio contro RealDobaglio — il capolista in trasferta. Il Vicesindaco vuole il colpo grosso, MatteGara deve difendere il trono. 82 contro 71.5: sarà una serata epica!' },
+      { time: '11\'', type: 'info', icon: '📋', player: 'Formazioni', text: 'S.C. Municipio col 4-3-3: Svilar in porta, Coco-Kalulu-Bremer-Dumfries in difesa, Gaetano-Zielinski-McTominay a centrocampo, Adams-Bonazzoli-Yildiz davanti. RealDobaglio con il 3-4-3: Caprile tra i pali, Atta e Paz N. pronti a colpire.' },
+      { time: '23\'', type: 'gol', icon: '⚽', player: 'McTominay', fv: 10, text: 'McCOWAN! No, McTOMINAY! Lo scozzese vola alto, tocco perfetto, 10 in fantavoto! Il Vicesindaco esulta, è in vantaggio!' },
+      { time: '31\'', type: 'gol', icon: '⚽', player: 'Atta (RealDobaglio)', fv: 10.5, text: 'PAREGGIO REALDOBAGLIO! Atta si accende con un 10.5 stratosferico! MatteGara risponde colpo su colpo. 1-1 fantavoto!' },
+      { time: '39\'', type: 'gol', icon: '⚽', player: 'Paz N. (RealDobaglio)', fv: 10, text: 'SORPASSO! Paz N. arriva a 10 fantavoto per RealDobaglio! Il capolista si porta avanti... ma il Municipio non ci sta.' },
+      { time: '45\'', type: 'gol', icon: '⚽', player: 'Da Cunha', fv: 9.5, text: 'GOL IN EXTREMIS! Da Cunha entra dalla panchina e segna con 9.5 fv! Pareggio allo scadere del primo tempo. 2-2 nel punteggio parziale!' },
+      { time: '58\'', type: 'super', icon: '🌟', player: 'DUMFRIES', fv: 14, text: 'DUMFRIEEEEES!! QUATTORDICI!! Il terzino olandese esplode con 14 fantavoto — doppietta più bonus! S.C. Municipio vola avanti! Lo stadio virtuale impazzisce!!' },
+      { time: '67\'', type: 'gol', icon: '⚽', player: 'Strefezza (RealDobaglio)', fv: 10, text: 'Strefezza prova la rimonta per RealDobaglio con un bel 10! Ma ormai il distacco è troppo grande...' },
+      { time: '74\'', type: 'gol', icon: '⚽', player: 'Modificatore ×4', fv: null, text: '🛡️ MODIFICATORE DIFESA ×4 per il Municipio! Quattro difensori sopra 6! Il bonus difensivo è devastante, si aggiungono punti preziosi al totale.' },
+      { time: '88\'', type: 'info', icon: '📊', player: 'Analisi', text: 'RealDobaglio ha giocatori di qualità — Atta 10.5, Paz 10, Strefezza 10 — ma non basta. Il Municipio ha risposto con profondità: Da Cunha dalla panchina, Dumfries in grande serata. Differenza di classe!' },
+      { time: '90\'', type: 'finale', icon: '🏆', player: 'FINALE', fv: null, text: 'FISCHIO FINALE! S.C. Municipio batte RealDobaglio 5-2! Il capolista inciampa! Il Vicesindaco festeggia: 82 punti contro 71.5, ora è 3° con la migliore media punti totali della lega (2097.5)!' },
+    ]
+  },
+
+  // 1 — Barriera Beinasco FC 5-0 Baddie Team
+  {
+    home: 'Barriera Beinasco FC', away: 'Baddie Team',
+    score: '5–0', homePts: '83.00', awayPts: '65.00',
+    competition: '⚽ Campionato 29ª',
+    motm: { player: 'Malen', team: 'Barriera Beinasco FC', fv: 17.5, comment: '"17.5 fantavoto. Non è un calciatore. È un codice cheat."' },
+    events: [
+      { time: '🎙️', type: 'intro', icon: '📡', player: 'Studio', text: 'Serata di fuoco! Barriera Beinasco FC dell\'Esattore n2201 ospita il Baddie Team di ANNA. Due squadre con ambizioni di vertice... ma una è destinata a soffrire. ANNA aveva preso Maignan e Leao! Teoria: non sempre funziona.' },
+      { time: '8\'', type: 'malus', icon: '💀', player: 'Maignan (Baddie)', fv: 3, text: 'DISASTRO IMMEDIATO! Maignan, il portiere del Milan, prende... TRE in fantavoto! Tre! Con quella rosa da sogno! ANNA è già sul divano a guardare il soffitto.' },
+      { time: '19\'', type: 'gol', icon: '⚽', player: 'Gosens', fv: 10, text: 'GOSENS! Il difensore va in doppia cifra! 10 in fantavoto, modificatore difensivo che scatta. L\'Esattore inizia a riscuotere.' },
+      { time: '33\'', type: 'gol', icon: '⚽', player: 'Barella', fv: 9.5, text: 'BARELLA show! 9.5 fantavoto — l\'interista è in forma smagliante. Barriera Beinasco domina il centrocampo.' },
+      { time: '44\'', type: 'malus', icon: '😫', player: 'Leao (Baddie)', fv: 4, text: 'E poi c\'è Leao... 4 in fantavoto. QUATTRO. ANNA lo aveva comprato ai voti, ma questa sera il portoghese ha deciso di non presentarsi. Classico.' },
+      { time: '52\'', type: 'gol', icon: '⚽', player: 'Simeone', fv: 10, text: 'IL CHOLITO SIMEONE! 10 fantavoto! Triplice colpo per Barriera Beinasco. L\'Esattore sorride: già tre gol di vantaggio!' },
+      { time: '68\'', type: 'super', icon: '💥', player: 'MALEN!!!', fv: 17.5, text: 'MAAAALEN!!! DICIASSETTE VIRGOLA CINQUE!! 8.5 di voto base + bonus gol + bonus assist = UN ALIENO! L\'attaccante del Dortmund entra nella storia della SuperFanta League. ANNA ha visto cose che voi umani non potreste immaginare.' },
+      { time: '79\'', type: 'gol', icon: '⚽', player: 'Messias (panchina)', fv: 8, text: 'Messias entra dalla panchina e segna con 8 fantavoto! L\'Esattore fa rifornimento anche dalle riserve. La profondità di rosa fa la differenza.' },
+      { time: '84\'', type: 'gol', icon: '⚽', player: 'Bowie (panchina)', fv: 10, text: 'BOWIE! Dalla panchina all\'apoteosi: 10 fantavoto! Due sostituti in doppia cifra! L\'Esattore ha una rosa, non una squadra. Ha un esercito.' },
+      { time: '90\'', type: 'finale', icon: '🏆', player: 'FINALE', text: 'FISCHIO FINALE! Barriera Beinasco FC 5-0 Baddie Team! 83 punti contro 65! ANNA chiuderà il mercato per mesi. L\'Esattore invece riapre i registri: tutto riscosso, con gli interessi.' },
+    ]
+  },
+
+  // 2 — Monviso Pinerolo 5-1 McTan
+  {
+    home: 'Monviso Pinerolo FC', away: 'McTan',
+    score: '5–1', homePts: '83.00', awayPts: '67.00',
+    competition: '⚽ Campionato 29ª',
+    motm: { player: 'Thuram', team: 'Monviso Pinerolo FC', fv: 13.5, comment: '"Marcus Thuram: 7.5 di voto base + bonus. Gabri lo sapeva che avrebbe fatto la differenza."' },
+    events: [
+      { time: '🎙️', type: 'intro', icon: '📡', player: 'Studio', text: 'La sorpresa della giornata! Monviso Pinerolo FC, settimo in classifica, affronta McTan del secondo posto. Gabri sfida Tanny. La montagna contro il campione. Qualcuno dirà: impossibile. La montagna risponde: parlate con Thuram.' },
+      { time: '15\'', type: 'gol', icon: '⚽', player: 'Konè I.', fv: 10, text: 'KONÈ! Il centrocampista del Monviso va in doppia cifra con un sontuoso 10 fantavoto! Monviso avanti! Tanny è sorpreso.' },
+      { time: '22\'', type: 'gol', icon: '⚽', player: 'Boga (McTan)', fv: 10, text: 'McTAN RISPONDE! Boga con 10 fantavoto pareggia subito i conti. Tanny tira un sospiro di sollievo. La partita è aperta!' },
+      { time: '34\'', type: 'gol', icon: '⚽', player: 'Baldanzi', fv: 8, text: 'BALDANZI! 8 fantavoto e Monviso si riporta in vantaggio. Gabri sente che questa è la sua notte.' },
+      { time: '48\'', type: 'super', icon: '🌟', player: 'THURAM', fv: 13.5, text: 'THURAAAAAAM!! TREDICI VIRGOLA CINQUE!! Marcus Thuram esplode con doppietta e assist! 7.5 di voto base e bonus su bonus! Il figlio di Lilian fa impazzire il Monviso! Tanny si copre gli occhi.' },
+      { time: '62\'', type: 'gol', icon: '⚽', player: 'Casadei (panchina)', fv: 10, text: 'CASADEI DALLA PANCHINA! 10 fantavoto! Altro titolare che entra e spacca la partita. Gabri gestisce la rosa come un allenatore vero. Quattro reti, dominio assoluto.' },
+      { time: '71\'', type: 'info', icon: '📊', player: 'Modificatore ×3', text: '🛡️ Tre difensori sopra soglia: Modificatore Difesa ×3 per Monviso! I punti extra si accumulano. 83 punti totali — pari record con Barriera Beinasco!' },
+      { time: '82\'', type: 'gol', icon: '⚽', player: 'Malinovskyi (McTan)', fv: 9.5, text: 'Malinovskyi prova l\'orgoglio con 9.5 per McTan, ma è solo consolazione. La partita è già decisa. Tanny mastica amaro: 67 punti non bastano contro questo Monviso.' },
+      { time: '90\'', type: 'finale', icon: '🏆', player: 'FINALE', text: 'FISCHIO FINALE! Monviso Pinerolo FC 5-1 McTan! 83 punti assoluti, terza manita della giornata! La montagna ha parlato. Gabri vola al 7° posto ma con 83 punti è stato il migliore in assoluto di giornata. Tanny scende al 2° posto.' },
+    ]
+  },
+
+  // 3 — Jet2Holidays 2-0 La Ciurma Illegale
+  {
+    home: 'Jet2Holidays', away: 'La Ciurma Illegale',
+    score: '2–0', homePts: '73.50', awayPts: '64.50',
+    competition: '⚽ Campionato 29ª',
+    motm: { player: 'Orsolini', team: 'Jet2Holidays', fv: 10, comment: '"10 fantavoto. Gasperinho ci credeva mentre tutti lo schernivano in coda."' },
+    events: [
+      { time: '🎙️', type: 'intro', icon: '📡', player: 'Studio', text: 'Lo scontro salvezza! Jet2Holidays di Gasperinho vs La Ciurma Illegale di Serena Brancale. Entrambe in zona pericolosa, entrambe in cerca di punti vitali. Chi perde, rischia seriamente la stagione.' },
+      { time: '18\'', type: 'gol', icon: '⚽', player: 'Orsolini', fv: 10, text: 'ORSOLINI! 10 fantavoto per il bolognese! Gasperinho decolla: il volo della settimana è partito!' },
+      { time: '29\'', type: 'malus', icon: '💀', player: 'Carnesecchi (Ciurma)', fv: 4.5, text: 'Carnesecchi prende 4.5 fantavoto per la Ciurma. Il portiere dell\'Atalanta non ha una serata brillante. Serena inizia a preoccuparsi.' },
+      { time: '43\'', type: 'gol', icon: '⚽', player: 'Davis K.', fv: 7, text: 'Davis K. firma il raddoppio con 7 fantavoto! Jet2Holidays controllo totale. Gasperinho in piedi sul divano.' },
+      { time: '55\'', type: 'info', icon: '📋', player: 'Analisi', text: 'La Ciurma schiera David e Bonny in attacco ma i due combinano 5.5 ciascuno. Zero mordente. Serena prova a cambiare i rincalzi ma Nzola e Piccoli non entrano. Speranza finita.' },
+      { time: '72\'', type: 'info', icon: '📊', player: 'Modificatore', text: '🛡️ Modificatore ×2 per Jet2, solo ×1 per la Ciurma. Il gap si allarga anche dai bonus difensivi.' },
+      { time: '90\'', type: 'finale', icon: '🏆', player: 'FINALE', text: 'FISCHIO FINALE! Jet2Holidays 2-0 La Ciurma Illegale! 73.50 vs 64.50. Gasperinho sale a 29 punti. Serena Brancale rimane ultima con 27 punti. La Coppa Meloni è l\'ultima speranza per ripartire.' },
+    ]
+  },
+
+  // 4 — FUTBIN 0-1 Foggia Calcio
+  {
+    home: 'FUTBIN', away: 'Foggia Calcio',
+    score: '0–1', homePts: '57.00', awayPts: '67.50',
+    competition: '⚽ Campionato 29ª',
+    motm: { player: 'Esposito Se.', team: 'Foggia Calcio', fv: 10, comment: '"10 fantavoto per Sebastiano Esposito. Francesco Farina lo aveva preso per questo momento."' },
+    events: [
+      { time: '🎙️', type: 'intro', icon: '📡', player: 'Studio', text: 'La partita del brivido! FUTBIN di Anna Frank contro Foggia Calcio di Francesco Farina. Sembrava facile per FUTBIN... ma il fantacalcio non perdona. Anna Frank ha Di Gregorio, Cambiaso, Buongiorno, Vlasic... tutti nomi di lusso. Eppure.' },
+      { time: '12\'', type: 'malus', icon: '💀', player: 'Di Gregorio (FUTBIN)', fv: 6.5, text: 'Bene in porta Di Gregorio... solo 6.5. Non male, ma non è un boost. FUTBIN parte piano.' },
+      { time: '21\'', type: 'malus', icon: '🤦', player: 'Banda (FUTBIN)', fv: 5.5, text: 'Banda 5.5. Isaksen 5.5. Solomon non entra. Kilicsoy non entra. Anna Frank guarda la formazione e non capisce cosa stia succedendo.' },
+      { time: '35\'', type: 'malus', icon: '💀', player: 'Sommer (Foggia)', fv: 2, text: 'SOMMER PRENDE 2! DUE! Il portiere del Foggia è una bomba pronta ad esplodere... ma Francesco Farina non si preoccupa: ha Esposito, Hojlund e Calhanoglu a coprire.' },
+      { time: '49\'', type: 'super', icon: '🔥', player: 'Esposito Se. (Foggia)', fv: 10, text: 'ESPOSITO SEBASTIANO! 10 fantavoto! Il talento del Foggia segna il gol che vale tutto! Francesco Farina urla in silenzio. FUTBIN è in svantaggio.' },
+      { time: '61\'', type: 'malus', icon: '😭', player: 'FUTBIN totale', fv: 57, text: '⚠️ FUTBIN raggiunge quota 57 punti totali. Cinquantasette. È il punteggio più basso della giornata. Anna Frank conta i giocatori: 9 in campo, 6 in panchina, zero emozioni.' },
+      { time: '74\'', type: 'info', icon: '📊', player: 'Foggia risponde', text: 'Hojlund chiude con 7.5 fantavoto. Calhanoglu 7. Modificatore difesa ×0 (solo Sommer che vale 2!). Eppure bastano 67.5 punti per vincere.' },
+      { time: '90\'', type: 'finale', icon: '🏆', player: 'FINALE', text: 'FISCHIO FINALE! FUTBIN 0-1 Foggia Calcio! 57.00 vs 67.50! Anna Frank ha perso con 57 punti — il record negativo di giornata. Francesco Farina vince nonostante un portiere da 2: quando il fantacalcio sorride, sorride davvero.' },
+    ]
+  },
+
+  // 5 — COPPA: Barriera 5-1 Foggia
+  {
+    home: 'Barriera Beinasco FC', away: 'Foggia Calcio',
+    score: '5–1', homePts: '83.00', awayPts: '67.50',
+    competition: '🏆 Coppa Meloni — Semifinale Andata',
+    motm: { player: 'Malen', team: 'Barriera Beinasco FC', fv: 17.5, comment: '"Stesso match, stessa classe, stesso alieno. Malen 17.5 anche in Coppa."' },
+    events: [
+      { time: '🎙️', type: 'intro', icon: '🏆', player: 'Studio', text: 'SEMIFINALE DI COPPA MELONI! Barriera Beinasco FC ospita Foggia Calcio in un match che può decidere il passaggio alla finale. L\'Esattore vuole la Coppa, Francesco Farina sogna l\'impresa. Stessa giornata di campionato, sfida diversa: qui si gioca per la gloria!' },
+      { time: '14\'', type: 'gol', icon: '⚽', player: 'Gosens', fv: 10, text: 'GOSENS! Subito in gol! Il terzino sinistro porta avanti Barriera con 10 fantavoto. La Coppa inizia nel migliore dei modi per l\'Esattore.' },
+      { time: '28\'', type: 'gol', icon: '⚽', player: 'Esposito Se. (Foggia)', fv: 10, text: 'FOGGIA RISPONDE! Esposito Sebastiano con 10 fantavoto accorcia! 1-1 temporaneo in Coppa! Francesco Farina sogna l\'impresa.' },
+      { time: '41\'', type: 'gol', icon: '⚽', player: 'Barella', fv: 9.5, text: 'BARELLA! 9.5 fantavoto, Barriera si riporta avanti. Il centrocampista dell\'Inter decide le partite. In campionato, in Coppa, sempre.' },
+      { time: '55\'', type: 'super', icon: '💥', player: 'MALEN!!!', fv: 17.5, text: 'DI NUOVO MALEN!!! DICIASSETTE VIRGOLA CINQUE ANCORA!!! In Coppa fa lo stesso! Il centravanti è inarrestabile! Francesco Farina guarda lo schermo e pensa di stare sognando. Non sta sognando.' },
+      { time: '65\'', type: 'gol', icon: '⚽', player: 'Simeone', fv: 10, text: 'SIMEONE! Terzo attaccante, terzo 10 fantavoto! L\'attacco di Barriera è un carroarmato. 83 punti totali, quattro reti.' },
+      { time: '79\'', type: 'gol', icon: '⚽', player: 'Bowie (panchina)', fv: 10, text: 'BOWIE! Dalla panchina ancora! La profondità di Barriera è imbarazzante. Cinque reti, manita in Coppa.' },
+      { time: '90\'', type: 'finale', icon: '🏆', player: 'FINALE COPPA', text: 'SEMIFINALE ANDATA: Barriera Beinasco FC 5-1 Foggia Calcio! L\'Esattore ha un piede in finale. Francesco Farina deve recuperare 4 reti nel ritorno. Matematicamente possibile... fantacalcisticamente? Vedremo.' },
+    ]
+  },
+
+  // 6 — COPPA: Baddie Team 0-2 Jet2Holidays
+  {
+    home: 'Baddie Team', away: 'Jet2Holidays',
+    score: '0–2', homePts: '65.00', awayPts: '73.50',
+    competition: '🏆 Coppa Meloni — Semifinale Andata',
+    motm: { player: 'Orsolini', team: 'Jet2Holidays', fv: 10, comment: '"Orsolini 10 fv. Il jolly di Gasperinho anche in Coppa."' },
+    events: [
+      { time: '🎙️', type: 'intro', icon: '🏆', player: 'Studio', text: 'Seconda semifinale! Baddie Team di ANNA contro Jet2Holidays di Gasperinho. ANNA arriva da un campionato disastroso (0 gol, 65 punti, Leao 4). La Coppa è l\'ultima chance di riscatto. Ma Gasperinho non è in vena di regali.' },
+      { time: '11\'', type: 'malus', icon: '💀', player: 'Maignan (Baddie)', fv: 3, text: 'ANCORA MAIGNAN! Tre fantavoto per il portiere del Baddie! ANNA non ha dormito da giorni. Il suo miglior acquisto di mercato vale meno di un Kessié a caso.' },
+      { time: '24\'', type: 'gol', icon: '⚽', player: 'Orsolini', fv: 10, text: 'ORSOLINI! Il bolognese porta Jet2Holidays in vantaggio anche in Coppa! Gasperinho prenota il volo per la finale.' },
+      { time: '37\'', type: 'malus', icon: '😫', player: 'Leao (Baddie)', fv: 4, text: 'Leao 4 fantavoto. Ancora. Di nuovo. Come sempre nell\'ultimo periodo. ANNA lo guarda dal divano con uno sguardo che vale mille parole.' },
+      { time: '53\'', type: 'gol', icon: '⚽', player: 'Davis K.', fv: 7, text: 'DAVIS K.! 7 fantavoto, Jet2 raddoppia! La rimonta per il Baddie diventa impossibile. Gasperinho è in finale!' },
+      { time: '68\'', type: 'info', icon: '📊', player: 'Analisi', text: 'Zaniolo fa 8.5 per il Baddie ma è solo fumo. N\'Dicka 7.5... non basta. Quando il portiere vale 3, hai già perso.' },
+      { time: '90\'', type: 'finale', icon: '🏆', player: 'FINALE COPPA', text: 'SEMIFINALE ANDATA: Baddie Team 0-2 Jet2Holidays! ANNA saluta la Coppa. Gasperinho vola: c\'è la finale contro Barriera Beinasco FC. Sarà Malen vs Orsolini! Chissà chi vincerà...' },
+    ]
+  },
+];
+
+let currentMatch = null;
+let isPlaying = false;
+let timeouts = [];
+let eventQueue = [];
+let currentEventIndex = 0;
+
+function getLogo(name) {
+  const f = LOGOS[name];
+  return f ? CDN + f : '';
+}
+
+function selectMatch(idx) {
+  // Reset
+  stopAll();
+  document.querySelectorAll('.match-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+  });
+
+  currentMatch = MATCHES[idx];
+  currentEventIndex = 0;
+
+  // Update score overlay
+  document.getElementById('soHomeName').textContent = currentMatch.home;
+  document.getElementById('soAwayName').textContent = currentMatch.away;
+  document.getElementById('soScore').textContent = currentMatch.score;
+  document.getElementById('soComp').textContent = currentMatch.competition;
+  document.getElementById('soPts').textContent = currentMatch.homePts + ' pt  ·  ' + currentMatch.awayPts + ' pt';
+
+  const hl = getLogo(currentMatch.home);
+  const al = getLogo(currentMatch.away);
+  const hImg = document.getElementById('soHomeLogo');
+  const aImg = document.getElementById('soAwayLogo');
+  if (hl) { hImg.src = hl; hImg.style.display = ''; } else { hImg.style.display = 'none'; }
+  if (al) { aImg.src = al; aImg.style.display = ''; } else { aImg.style.display = 'none'; }
+
+  // Reset commentary
+  const area = document.getElementById('commentaryArea');
+  area.innerHTML = '<div style="padding:20px;color:var(--grey);font-family:\'Roboto Condensed\';font-size:14px;text-align:center;">Premi ▶ INIZIA per la telecronaca!</div>';
+
+  document.getElementById('btnPlay').disabled = false;
+  document.getElementById('btnPlay').textContent = '▶ INIZIA';
+  document.getElementById('btnSkip').style.display = 'none';
+  document.getElementById('ctrlStatus').textContent = currentMatch.home + ' vs ' + currentMatch.away;
+  isPlaying = false;
+}
+
+function stopAll() {
+  timeouts.forEach(t => clearTimeout(t));
+  timeouts = [];
+  isPlaying = false;
+}
+
+function playMatch() {
+  if (!currentMatch) return;
+  stopAll();
+  isPlaying = true;
+  currentEventIndex = 0;
+
+  document.getElementById('commentaryArea').innerHTML = '';
+  document.getElementById('btnPlay').disabled = true;
+  document.getElementById('btnSkip').style.display = 'inline-block';
+
+  scheduleEvents();
+}
+
+function scheduleEvents() {
+  const events = currentMatch.events;
+  let delay = 0;
+
+  events.forEach((ev, i) => {
+    const t = setTimeout(() => {
+      addEvent(ev);
+      if (i === events.length - 1) {
+        addMOTM();
+        document.getElementById('btnPlay').textContent = '🔁 RIVEDI';
+        document.getElementById('btnPlay').disabled = false;
+        document.getElementById('btnSkip').style.display = 'none';
+        document.getElementById('ctrlStatus').textContent = 'Fine partita — clicca per rivedere';
+        isPlaying = false;
+      }
+    }, delay);
+    timeouts.push(t);
+
+    // Dynamic delay per type
+    if (ev.type === 'intro') delay += 2200;
+    else if (ev.type === 'super') delay += 2800;
+    else if (ev.type === 'finale') delay += 2000;
+    else delay += 1800;
+  });
+}
+
+function addEvent(ev) {
+  const area = document.getElementById('commentaryArea');
+
+  const div = document.createElement('div');
+  div.className = `event ${ev.type}`;
+
+  let fvHtml = '';
+  if (ev.fv != null) {
+    const cls = ev.fv >= 10 ? 'super-score' : (ev.fv < 5 ? 'bad' : '');
+    fvHtml = `<span class="event-fv ${cls}">${ev.fv} fv</span>`;
+  }
+
+  div.innerHTML = `
+    <div class="event-time">${ev.time}</div>
+    <div class="event-icon">${ev.icon}</div>
+    <div class="event-body">
+      <div class="event-player">${ev.player} ${fvHtml}</div>
+      <div class="event-text">${ev.text}</div>
+    </div>
+  `;
+
+  area.appendChild(div);
+  requestAnimationFrame(() => { setTimeout(() => div.classList.add('show'), 20); });
+  area.scrollTop = area.scrollHeight;
+
+  // Flash effects
+  if (ev.type === 'super') {
+    flashSuper();
+    showBigMoment(ev.player.replace('!!!','').trim(), ev.fv + ' FV');
+  } else if (ev.type === 'gol') {
+    flashGoal();
+    showBigMoment('GOL!', ev.player);
+  } else if (ev.type === 'finale') {
+    flashSuper();
+  }
+}
+
+function addMOTM() {
+  const area = document.getElementById('commentaryArea');
+  const m = currentMatch.motm;
+
+  const div = document.createElement('div');
+  div.className = 'event show';
+  div.style.opacity = '0';
+  div.style.transform = 'translateY(10px)';
+  div.innerHTML = `
+    <div class="event-time">⭐</div>
+    <div class="event-icon">🏅</div>
+    <div class="event-body" style="flex:1">
+      <div class="motm-card">
+        <div class="motm-title">Man of the Match</div>
+        <div class="motm-name">${m.player}</div>
+        <div style="font-size:12px;color:var(--grey);font-family:'Roboto Condensed';margin:2px 0">${m.team}</div>
+        <div class="motm-fv">${m.fv}</div>
+        <div class="motm-comment">${m.comment}</div>
+      </div>
+    </div>
+  `;
+  area.appendChild(div);
+  setTimeout(() => {
+    div.style.opacity = '1';
+    div.style.transform = 'translateY(0)';
+    div.style.transition = 'all 0.5s ease';
+  }, 100);
+  area.scrollTop = area.scrollHeight;
+}
+
+function flashGoal() {
+  const f = document.getElementById('goalFlash');
+  f.classList.add('flash');
+  setTimeout(() => f.classList.remove('flash'), 300);
+}
+
+function flashSuper() {
+  const f = document.getElementById('superFlash');
+  f.classList.add('flash');
+  setTimeout(() => f.classList.remove('flash'), 400);
+}
+
+function showBigMoment(label, sub) {
+  const bm = document.getElementById('bigMoment');
+  document.getElementById('bmLabel').textContent = label;
+  document.getElementById('bmSub').textContent = sub || '';
+  bm.classList.add('show');
+  setTimeout(() => bm.classList.remove('show'), 1400);
+}
+
+function skipAll() {
+  stopAll();
+  document.getElementById('commentaryArea').innerHTML = '';
+  currentMatch.events.forEach(ev => addEvent(ev));
+  addMOTM();
+  document.getElementById('btnPlay').textContent = '🔁 RIVEDI';
+  document.getElementById('btnPlay').disabled = false;
+  document.getElementById('btnSkip').style.display = 'none';
+  document.getElementById('ctrlStatus').textContent = 'Fine partita — clicca per rivedere';
+}
+</script>
+</body>
+</html>
